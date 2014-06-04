@@ -1,26 +1,37 @@
 var path = require('path')
   , fs = require('fs-extra')
-  , childProc = require('child_process');
+  , childProc = require('child_process')
+  , _ = require('lodash');
 
-function msbuild(context, proj, vsvars, done) {
+function msbuild(context, config, vsvars, done) {
   if (vsvars) {
-    context.cmd({
-      cmd: {
-        command: 'cmd',
-        args: [
+    var screen = 'msbuild ' + config.projectFile;
+    var args = [
           '/c',
           vsvars,
           '&',
           'msbuild',
-          proj
-        ],
-        screen: 'msbuild ' + proj
+          config.projectFile
+        ];
+        
+    if (config.targets && config.targets.length) {
+      var targets = '/t:';
+      targets += _.reduce(config.targets, function (a, t) { return a + ';' + t; });
+      args.push(targets);
+      screen += ' ' + targets;
+    }
+        
+    context.cmd({
+      cmd: {
+        command: 'cmd',
+        args: args,
+        screen: screen
       }
     }, done);
   }
   else {
     context.cmd({ 
-      cmd: { command: 'msbuild', args: [proj] }
+      cmd: { command: 'msbuild', args: [config.projectFile] }
     }, done);
   }
 }
@@ -35,7 +46,7 @@ module.exports = {
         if (!config.projectFile) {
           done(null, false);
         } else {
-          msbuild(context, config.projectFile, ret.vsvars, done);
+          msbuild(context, config, ret.vsvars, done);
         }
       }
     };

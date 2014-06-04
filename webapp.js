@@ -4,6 +4,7 @@ module.exports = {
   config: {
 	projectFile: { type: String, default: '' },
     vsPath:      { type: String, default: '' },
-    vsVersion:   { type: String, default: 'custom' }
+    vsVersion:   { type: String, default: 'custom' },
+    targets:    [{ type: String }]
   }
 }

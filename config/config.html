@@ -1,5 +1,7 @@
-<h4>Visual Studio</h4>
+<button ng-click="save()" class="btn btn-primary">Save</button>
+
 <div>
+  <h4>Visual Studio</h4> 
   <select ng-change="save()" ng-model="config.vsVersion" ng-options="value for value in ['2013', '2012', '2010', 'custom']"></select>
   <p class="help-text">
     Select <em>custom</em> if you want to specify the path to Visual Studio manually, or if you only have an Express version installed. The Express versions
@@ -19,6 +21,23 @@
   If no project or solution is specified, strider will attempt to find a solution in the project's default directory.
   If there is more than one solution file, an error will be thrown.
   </p>
-  <button ng-click="save()" class="btn btn-primary">Save</button>
 </div>
-
+<div>
+  <h4>Build Targets</h4>
+  <p>
+    Specify here which targets you wish to build.
+	Common targets are Clean, Build, Rebuild.
+	Custom targets are of course supported.
+  </p>
+  <ul class="targets unstyled">
+    <li ng-repeat="item in config.targets">
+      <i class="icon-remove" ng-click="removeTarget($index)"></i>
+      [[ item ]]
+    </li>
+    <li ng-hide="config.targets.length"><em>No targets specified. Generally Build is the default target.</em></li>
+  </ul>
+  <div class="form-inline">
+    <input placeholder="Target" ng-model="new_target">
+    <button class="btn btn-primary" ng-disabled="!new_target" ng-click="addTarget()">Add</button>
+  </div>
+</div>
