@@ -1,0 +1,24 @@
+<h4>Visual Studio</h4>
+<div>
+  <select ng-change="save()" ng-model="config.vsVersion" ng-options="value for value in ['2013', '2012', '2010', 'custom']"></select>
+  <p class="help-text">
+    Select <em>custom</em> if you want to specify the path to Visual Studio manually, or if you only have an Express version installed. The Express versions
+	do not set the environment variables Strider uses to detect the install location.
+  </p>
+</div>
+<div ng-hide="config.vsVersion != 'custom'">
+  <p class="help-text">
+    This must be the path to the root folder that Visual Studio is installed to.
+  </p>
+  <input class="input-xxlarge" placeholder="path to VS" ng-model="config.vsPath">
+</div>
+<div>
+  <h4>Project or Solution</h4>
+  <input class="input-xxlarge" placeholder="project.sln" ng-model="config.projectFile">
+  <p class="help-text">
+  If no project or solution is specified, strider will attempt to find a solution in the project's default directory.
+  If there is more than one solution file, an error will be thrown.
+  </p>
+  <button ng-click="save()" class="btn btn-primary">Save</button>
+</div>
+

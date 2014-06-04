@@ -1,0 +1,30 @@
+{
+  "name": "strider--dot-net",
+  "version": "0.1.0",
+  "description": "Run .NET builds in Strider",
+  "main": "worker.js",
+  "dependencies": {
+    "async": "~0.2.9",
+    "fs-extra": "~0.8.1"
+  },
+  "keywords": [
+    "strider",
+    ".NET"
+  ],
+  "author": {
+    "name": "Abraham Heidebrecht"
+  },
+  "license": "GPL-2.0",
+  "readmeFilename": "Readme.md",
+  "strider": {
+    "id": "dotnet",
+    "type": "job",
+    "title": ".NET",
+    "webapp": "webapp.js",
+    "worker": "worker.js",
+    "icon": "icon.png",
+    "config": {
+      "controller": "DotNetController"
+    }
+  }
+}
