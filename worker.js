@@ -18,6 +18,12 @@ function parseBuild(context, config, done) {
     args.push(targets);
     screen += ' ' + targets;
   }
+  var platform = config.customPlatform || config.platform;
+  if (platform && platform != 'Default') {
+    platform = '/p:Platform=' + platform; 
+    args.push(platform);
+    screen += ' ' + platform;
+  }
   
   if (config.netVersion && config.netVersion != 'whatever') {
     findmsbuild(config.netVersion, 'Framework64', function (err, fullpath) {

@@ -20,9 +20,16 @@
 <div>
   <h4>Build Targets</h4>
   <p>
+    Specify which CPU architecture to build for. This must be
+    defined in the project, or there will be a build error (unless 
+    you specify Default, as strider will not specify a platform).
+  </p>
+  <select ng-change="save()" ng-model="config.platform" ng-options="value for value in ['Default', 'Any CPU', 'x86', 'x64', 'ARM', 'Custom']"></select>
+  <input class="input-large" ng-model="config.customPlatform" ng-hide="config.platform != 'Custom'">
+  <p>
     Specify here which targets you wish to build.
-	Common targets are Clean, Build, Rebuild.
-	Custom targets are of course supported.
+    Common targets are Clean, Build, Rebuild.
+    Custom targets are of course supported.
   </p>
   <ul class="targets unstyled">
     <li ng-repeat="item in config.targets">
