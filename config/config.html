@@ -25,6 +25,18 @@
     </div>
   </div>
   <div class="form-group">
+    <label for="config" class="control-label">Configuration</label>
+	<div class="controls">
+      <select id="config" ng-change="save()" ng-model="config.configuration" ng-options="value for value in ['Default', 'Debug', 'Release', 'Custom']"></select>
+      <input class="input-large" ng-model="config.customConfiguration" ng-hide="config.configuration != 'Custom'">
+      <p class="help-block">
+        Specify which configuration to build. Most projects only
+        have Debug and Release specified, but you can use
+        custom configurations by selecting custom.
+      </p>
+    </div>
+  </div>
+  <div class="form-group">
     <label for="arch" class="control-label">CPU Architecture</label>
 	<div class="controls">
       <select id="arch" ng-change="save()" ng-model="config.platform" ng-options="value for value in ['Default', 'Any CPU', 'x86', 'x64', 'ARM', 'Custom']"></select>

@@ -18,6 +18,13 @@ function build(context, config, done) {
     args.push(targets);
     screen += ' ' + targets;
   }
+  var configuration = config.customConfiguration || config.configuration;
+  if (configuration && configuration != 'Default') {
+    configuration = '/p:Configuration=' + configuration; 
+    args.push(configuration);
+    screen += ' ' + configuration;
+  }
+  
   var platform = config.customPlatform || config.platform;
   if (platform && platform != 'Default') {
     platform = '/p:Platform=' + platform; 
