@@ -20,4 +20,15 @@ app.controller('DotNetController', ['$scope', function ($scope) {
     $scope.new_target = '';
     $scope.save();
   };
+  $scope.removeCustomProperty = function (index) {
+    $scope.config.customProperties.splice(index, 1);
+    $scope.save();
+  };
+  $scope.addCustomProperty = function () {
+    if (!$scope.config.customProperties) $scope.config.customProperties = [];
+    $scope.config.customProperties.push({ name: $scope.new_property_name, value: $scope.new_property_value });
+    $scope.new_property_name = '';
+    $scope.new_property_value = '';
+    $scope.save();
+  }
 }]);

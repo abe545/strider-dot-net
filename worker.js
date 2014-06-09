@@ -4,7 +4,7 @@ var path = require('path')
   , async = require('async')
   , _ = require('lodash');
 
-function parseBuild(context, config, done) {
+function build(context, config, done) {
   var screen = 'msbuild';
   var args = [];
   if (config.projectFile) {
@@ -24,13 +24,24 @@ function parseBuild(context, config, done) {
     args.push(platform);
     screen += ' ' + platform;
   }
+  if (config.customProperties && config.customProperties.length) {
+    _.each(config.customProperties, function (prop) {
+      var prop = '/p:' + prop.name + '=' + prop.value;
+      args.push(prop);
+      screen += ' ' + prop;
+    });
+  }
   
   if (config.netVersion && config.netVersion != 'whatever') {
     findmsbuild(config.netVersion, 'Framework64', function (err, fullpath) {
       if (err || !fullpath) {
         findmsbuild(config.netVersion, 'Framework', function (err, fullpath) {
           if (err) {
-            done(err);
+            var time = new Date();
+            context.status('command.start', { command: screen, started: time, time: time, plugin: 'dotnet' });
+            context.status('stderr', '\u001b[31;1m' + err + '\u001b[0m');
+            context.status('command.done', { exitCode: 404, time: time, elapsed: 0 });
+            return done(404, err);
           } else {
             msbuild(context, fullpath, args, screen, done);
           }
@@ -89,7 +100,7 @@ module.exports = {
     config = config || {}
     var ret = {
       prepare: function (context, done) {   
-        parseBuild(context, config, done);
+        build(context, config, done);
       }
     };
     
