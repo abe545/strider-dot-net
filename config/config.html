@@ -2,91 +2,109 @@
   <button ng-click="save()" class="btn btn-primary">Save</button>
 </div>
 
-<form class="form-horizontal"> <fieldset>
-  <div class="form-group">
-    <label for="netVersion" class="control-label">.NET Version</label> 
-    <div class="controls">
-      <select id="netVersion" ng-change="save()" ng-model="config.netVersion" ng-options="value for value in ['1.0', '1.1', '2.0', '3.0', '3.5', '4.0', 'whatever']"></select>
-      <p class="help-block">
-        Select <em>whatever</em> if the .NET framework version you wish to build with is in the path. 
-        Specifically, strider needs to call msbuild; if no msbuild.exe is accessible in the path,
-        using <em>whatever</em> will always fail.
-      </p>
-    </div>
-  </div>
-  <div class="form-group">
-    <label for="proj" class="control-label">Project or Solution</label>
-	<div class="controls">
-      <input id="proj" class="input-xxlarge" placeholder="project.sln" ng-model="config.projectFile">
-      <p class="help-block">
-      If no project or solution is specified, msbuild will attempt to build a file that ends in <em>proj</em>.
-      If there is not exactly one file that ends in <em>proj</em>, the build will fail.
-      </p>
-    </div>
-  </div>
-  <div class="form-group">
-    <label for="config" class="control-label">Configuration</label>
-	<div class="controls">
-      <select id="config" ng-change="save()" ng-model="config.configuration" ng-options="value for value in ['Default', 'Debug', 'Release', 'Custom']"></select>
-      <input class="input-large" ng-model="config.customConfiguration" ng-hide="config.configuration != 'Custom'">
-      <p class="help-block">
-        Specify which configuration to build. Most projects only
-        have Debug and Release specified, but you can use
-        custom configurations by selecting custom.
-      </p>
-    </div>
-  </div>
-  <div class="form-group">
-    <label for="arch" class="control-label">CPU Architecture</label>
-	<div class="controls">
-      <select id="arch" ng-change="save()" ng-model="config.platform" ng-options="value for value in ['Default', 'Any CPU', 'x86', 'x64', 'ARM', 'Custom']"></select>
-      <input class="input-large" ng-model="config.customPlatform" ng-hide="config.platform != 'Custom'">
-      <p class="help-block">
-        Specify which CPU architecture to build for. This must be
-        defined in the project, or there will be a build error (unless 
-        you specify Default, as strider will not specify a platform).
-      </p>
-    </div>
-  </div>
-  <div class="form-group">
-    <label for="targets" class="control-label">Build Targets</label>
-	<div class="controls">
-      <div id="targets" class="form-inline">
-        <input placeholder="Target" ng-model="new_target">
-        <button class="btn btn-primary" ng-disabled="!new_target" ng-click="addTarget()">Add</button>
+<form class="form-horizontal"> 
+  <fieldset>
+    <div class="form-group">
+      <label for="proj" class="control-label">Project or Solution</label>
+      <div class="controls">
+        <input id="proj" class="input-xxlarge" placeholder="project.sln" ng-model="config.projectFile">
+        <p class="help-block">
+        If no project or solution is specified, msbuild will attempt to build a file that ends in <em>proj</em>.
+        If there is not exactly one file that ends in <em>proj</em>, the build will fail.
+        </p>
       </div>
-      <p class="help-block">
-        Specify which targets you wish to build. Common targets are Clean, Build, Rebuild.
-      </p>
     </div>
-    <ul class="targets unstyled">
-      <li ng-repeat="item in config.targets">
-        <i class="icon-remove" ng-click="removeTarget($index)"></i>
-        [[ item ]]
-      </li>
-      <li ng-hide="config.targets.length"><em>No targets specified. Generally Build is the default target.</em></li>
-    </ul>
-  </div>
-  <div class="form-group">
-    <label for="params" class="control-label">Additional Parameters</label>
-	<div class="controls">
-      <div class="form-inline">
-        <input placeholder="Property Name" ng-model="new_property_name">
-        <input placeholder="Property Value" ng-model="new_property_value">
-        <button class="btn btn-primary" ng-disabled="!new_property_name || !new_property_value" ng-click="addCustomProperty()">Add</button>
+    <div class="form-group">
+      <label for="nuget" class="control-label">NuGet Packages</label>
+      <div class="controls">
+        <label id="nuget" class="checkbox">
+          <input type="checkbox" ng-model="config.restorePackages" ng-change="save()">
+          Restore NuGet Packages before running msbuild
+        </label>
+        <select ng-change="save()" ng-model="config.restoreMethod" ng-hide="!config.restorePackages" ng-options="value for value in ['Whatever', 'Project', 'Custom']"></select>
+        <input class="input-xlarge" ng-model="config.customRestoreFile" ng-hide="!config.restorePackages || config.restoreMethod != 'Custom'">
+        <p class="help-block" ng-hide="!config.restorePackages">
+          If <em>Whatever</em> is selected, strider will not pass anything to nuget.exe</br>
+          If <em>Project</em> is selected, strider will pass the project or solution specified above to nuget.exe<br/>
+          If <em>Custom</em> is selected, you can specify the file to pass to nuget.exe
+        </p>
       </div>
-      <p class="help-block">
-        You can specify additional properties to pass to msbuild here.
-        They are passed to msbuild like: /p:PROPERTYNAME=PROPERTYVALUE.
-        Strider will use quotes on the property name and value if appropriate.
-      </p>
     </div>
-    <ul class="targets unstyled">
-      <li ng-repeat="item in config.customProperties">
-        <i class="icon-remove" ng-click="removeCustomProperty($index)"></i>
-        [[ item.name ]]=[[ item.value ]]
-      </li>
-      <li ng-hide="config.customProperties.length"><em>No custom properties added.</em></li>
-    </ul>
-  </div>
-</fieldset></form>
+    <div class="form-group">
+      <label for="netVersion" class="control-label">.NET Version</label> 
+      <div class="controls">
+        <select id="netVersion" ng-change="save()" ng-model="config.netVersion" ng-options="value for value in ['1.0', '1.1', '2.0', '3.0', '3.5', '4.0', 'Whatever']"></select>
+        <p class="help-block">
+          Select <em>Whatever</em> if the .NET framework version you wish to build with is in the path. 
+          Specifically, strider needs to call msbuild; if no msbuild.exe is accessible in the path,
+          using <em>Whatever</em> will always fail.
+        </p>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="config" class="control-label">Configuration</label>
+      <div class="controls">
+        <select id="config" ng-change="save()" ng-model="config.configuration" ng-options="value for value in ['Default', 'Debug', 'Release', 'Custom']"></select>
+        <input class="input-large" ng-model="config.customConfiguration" ng-hide="config.configuration != 'Custom'">
+        <p class="help-block">
+          Specify which configuration to build. Most projects only
+          have Debug and Release specified, but you can use
+          custom configurations by selecting custom.
+        </p>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="arch" class="control-label">CPU Architecture</label>
+      <div class="controls">
+        <select id="arch" ng-change="save()" ng-model="config.platform" ng-options="value for value in ['Default', 'Any CPU', 'x86', 'x64', 'ARM', 'Custom']"></select>
+        <input class="input-large" ng-model="config.customPlatform" ng-hide="config.platform != 'Custom'">
+        <p class="help-block">
+          Specify which CPU architecture to build for. This must be
+          defined in the project, or there will be a build error (unless 
+          you specify Default, as strider will not specify a platform).
+        </p>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="targets" class="control-label">Build Targets</label>
+      <div class="controls">
+        <div id="targets" class="form-inline">
+          <input placeholder="Target" ng-model="new_target">
+          <button class="btn btn-primary" ng-disabled="!new_target" ng-click="addTarget()">Add</button>
+        </div>
+        <p class="help-block">
+          Specify which targets you wish to build. Common targets are Clean, Build, Rebuild.
+        </p>
+      </div>
+      <ul class="targets unstyled">
+        <li ng-repeat="item in config.targets">
+          <i class="icon-remove" ng-click="removeTarget($index)"></i>
+          [[ item ]]
+        </li>
+        <li ng-hide="config.targets.length"><em>No targets specified. Generally Build is the default target.</em></li>
+      </ul>
+    </div>
+    <div class="form-group">
+      <label for="params" class="control-label">Additional Parameters</label>
+	  <div class="controls">
+        <div class="form-inline">
+          <input placeholder="Property Name" ng-model="new_property_name">
+          <input placeholder="Property Value" ng-model="new_property_value">
+          <button class="btn btn-primary" ng-disabled="!new_property_name || !new_property_value" ng-click="addCustomProperty()">Add</button>
+        </div>
+        <p class="help-block">
+          You can specify additional properties to pass to msbuild here.
+          They are passed to msbuild like: /p:PROPERTYNAME=PROPERTYVALUE.
+          Strider will use quotes on the property name and value if appropriate.
+        </p>
+      </div>
+      <ul class="targets unstyled">
+        <li ng-repeat="item in config.customProperties">
+          <i class="icon-remove" ng-click="removeCustomProperty($index)"></i>
+          [[ item.name ]]=[[ item.value ]]
+        </li>
+        <li ng-hide="config.customProperties.length"><em>No custom properties added.</em></li>
+      </ul>
+    </div>
+  </fieldset>
+</form>

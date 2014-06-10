@@ -4,9 +4,10 @@
   "description": "Run .NET builds in Strider",
   "main": "worker.js",
   "dependencies": {
-    "async": "~0.2.9",
-    "fs-extra": "~0.8.1",
-	"lodash": "~2.4.1"
+    "async": "~0.2.10",
+    "fs-extra": "~0.9.1",
+    "lodash": "~2.4.1",
+    "request": "~2.36.0"
   },
   "keywords": [
     "strider",

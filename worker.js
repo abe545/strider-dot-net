@@ -2,11 +2,12 @@ var path = require('path')
   , fs = require('fs-extra')
   , childProc = require('child_process')
   , async = require('async')
-  , _ = require('lodash');
+  , _ = require('lodash')
+  , request = require('request');
 
 function build(context, config, done) {
   var screen = 'msbuild';
-  var args = [];
+  var args = ['/m', '/nologo'];
   if (config.projectFile) {
     args.push(config.projectFile);
     screen += ' ' + config.projectFile;
@@ -39,7 +40,7 @@ function build(context, config, done) {
     });
   }
   
-  if (config.netVersion && config.netVersion != 'whatever') {
+  if (config.netVersion && config.netVersion != 'Whatever') {
     findmsbuild(config.netVersion, 'Framework64', function (err, fullpath) {
       if (err || !fullpath) {
         findmsbuild(config.netVersion, 'Framework', function (err, fullpath) {
@@ -63,7 +64,7 @@ function build(context, config, done) {
 }
 
 function findmsbuild(version, framework, callback) {
-  var root = process.env.windir + '\\Microsoft.NET\\' + framework;
+  var root = path.join(process.env.windir, 'Microsoft.NET', framework);
   async.waterfall([
     function (next) {
       fs.readdir(root, next);
@@ -74,13 +75,13 @@ function findmsbuild(version, framework, callback) {
       });
       
       if (dir) {
-        next(null, root + '\\' + dir);
+        next(null, path.join(root, dir));
       } else {
         next('msbuild could not be found for .NET ' + version);
       }
     },
     function (dir, next) {
-      var msbuild = dir + '\\msbuild.exe';
+      var msbuild = path.join(dir, 'msbuild.exe');
       fs.exists(msbuild, function(exists) {
         if (exists) {
           next(null, msbuild);
@@ -101,13 +102,75 @@ function msbuild(context, path, args, screen, done) {
     }
   }, done);
 }
+
+function ensureNuGet(context, config, done) {
+  var nugetPath = path.join(context.baseDir, 'nuget', 'nuget.exe');
+  fs.exists(nugetPath, function(exists) {
+    if (exists) {
+      return done();
+    }
+    var start = new Date();
+    context.status('command.start', { command: 'Downloading Nuget.exe', started: start, time: start, plugin: 'dotnet' });
+    fs.ensureFile(nugetPath, function() {
+      var file = fs.createWriteStream(nugetPath);
+      file.on('finish', function() {
+        file.close(function(err, data) {
+          var exit = 0;
+          if (err) { exit = -1; }
+          var end = new Date();
+          context.status('command.done', { exitCode: exit, time: end, elapsed: end.getTime() - start.getTime() });
+          done(err, data);
+        });
+      });
+      request.get('http://www.nuget.org/nuget.exe').pipe(file);
+    });
+  });
+}
+
+function restorePackages(context, config, done) {
+  ensureNuGet(context, config, function(err) {
+    if (err) {
+      done(err);
+    } else {
+      var nugetPath = path.join(context.baseDir, 'nuget', 'nuget.exe');
+      var args = [ 'restore' ];
+      var screen = 'nuget restore';
+      
+      if (config.restoreMethod == 'Project') {
+        args.push(config.projectFile);
+        screen += ' ' + config.projectFile;
+      } else if (config.restoreMethod == 'Custom') {
+        args.push(config.customRestoreFile);
+        screen += ' ' + config.customRestoreFile;
+      }
+      args.push('-NonInteractive');
+      context.cmd({
+        cmd: {
+          command: nugetPath,
+          args: args,
+          screen: screen
+        }
+      }, done);
+    }
+  });
+}
   
 module.exports = {
   init: function (config, job, context, cb) {
     config = config || {}
     var ret = {
       prepare: function (context, done) {   
-        build(context, config, done);
+        if (config.restorePackages) {
+          restorePackages(context, config, function(err, res) {
+            if (err) {
+              done(err);
+            } else {
+              build(context, config, done);
+            }
+          });
+        } else {
+          build(context, config, done);
+        }
       }
     };
     
