@@ -46,7 +46,7 @@ function build(context, config, done) {
         findmsbuild(config.netVersion, 'Framework', function (err, fullpath) {
           if (err) {
             var time = new Date();
-            context.status('command.start', { command: screen, started: time, time: time, plugin: 'dotnet' });
+            context.status('command.start', { command: screen, started: time, time: time, plugin: context.plugin });
             context.status('stderr', '\u001b[31;1m' + err + '\u001b[0m');
             context.status('command.done', { exitCode: 404, time: time, elapsed: 0 });
             return done(404, err);
@@ -106,7 +106,7 @@ function msbuild(context, path, args, screen, done) {
 function ensureNuGet(context, config, done) {
   var nugetPath = path.join(context.baseDir, 'nuget', 'nuget.exe');
   var start = new Date();
-  context.status('command.start', { command: 'Downloading latest Nuget.exe', started: start, time: start, plugin: 'dotnet' });
+  context.status('command.start', { command: 'Downloading latest Nuget.exe', started: start, time: start, plugin: context.plugin });
   fs.exists(nugetPath, function(exists) {
     if (exists) {
       var proc = childProc.spawn('nuget', [ 'update', '-Self' ], { cwd: path.join(context.baseDir, 'nuget') });

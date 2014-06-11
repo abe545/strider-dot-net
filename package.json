@@ -1,5 +1,5 @@
 {
-  "name": "strider--dot-net",
+  "name": "strider-dot-net",
   "version": "0.1.0",
   "description": "Run .NET builds in Strider",
   "main": "worker.js",
