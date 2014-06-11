@@ -105,25 +105,39 @@ function msbuild(context, path, args, screen, done) {
 
 function ensureNuGet(context, config, done) {
   var nugetPath = path.join(context.baseDir, 'nuget', 'nuget.exe');
+  var start = new Date();
+  context.status('command.start', { command: 'Downloading latest Nuget.exe', started: start, time: start, plugin: 'dotnet' });
   fs.exists(nugetPath, function(exists) {
     if (exists) {
-      return done();
-    }
-    var start = new Date();
-    context.status('command.start', { command: 'Downloading Nuget.exe', started: start, time: start, plugin: 'dotnet' });
-    fs.ensureFile(nugetPath, function() {
-      var file = fs.createWriteStream(nugetPath);
-      file.on('finish', function() {
-        file.close(function(err, data) {
-          var exit = 0;
-          if (err) { exit = -1; }
-          var end = new Date();
-          context.status('command.done', { exitCode: exit, time: end, elapsed: end.getTime() - start.getTime() });
-          done(err, data);
-        });
+      var proc = childProc.spawn('nuget', [ 'update', '-Self' ], { cwd: path.join(context.baseDir, 'nuget') });
+      proc.stdout.setEncoding('utf8')
+      proc.stderr.setEncoding('utf8')
+      proc.stdout.on('data', function(data) { context.status('stdout', data); });
+      proc.stderr.on('data', function(data) { context.status('stderr', data); });
+      proc.on('close', function(exit) {
+        var end = new Date();
+        context.status('command.done', { exitCode: exit, time: end, elapsed: end.getTime() - start.getTime() });
+        done(exit);
       });
-      request.get('http://www.nuget.org/nuget.exe').pipe(file);
-    });
+    } else {
+      fs.ensureFile(nugetPath, function() {
+        var file = fs.createWriteStream(nugetPath);
+        context.status('stdout', 'Downloading https://www.nuget.org/nuget.exe');
+        file.on('finish', function() {
+          file.close(function(err, data) {
+            var end = new Date();
+            var exit = 0;
+            
+            if (err) exit = -1;
+            if (data) context.status('stdout', data);
+            
+            context.status('command.done', { exitCode: exit, time: end, elapsed: end.getTime() - start.getTime() });
+            done(err, data);
+          });
+        });
+        request.get('http://www.nuget.org/nuget.exe').pipe(file);
+      });
+    }
   });
 }
 
