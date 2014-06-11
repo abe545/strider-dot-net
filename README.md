@@ -1,6 +1,8 @@
 strider-dot-net
 ===============
 
+[![NPM][npm-badge-img]][npm-badge-link]
+
 .NET build actions for strider.
 
 Currently can simply call msbuild on a project or solution file. 
@@ -15,3 +17,6 @@ It also will now restore NuGet packages. It will get the latest version of nuget
 
 You can follow its progress at http://gettinggui.com
 
+
+[npm-badge-img]: https://nodei.co/npm/strider-dot-net.svg
+[npm-badge-link]: https://nodei.co/npm/strider-dot-net/
