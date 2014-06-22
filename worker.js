@@ -40,27 +40,39 @@ function build(context, config, done) {
     });
   }
   
-  if (config.netVersion && config.netVersion != 'Whatever') {
-    findmsbuild(config.netVersion, 'Framework64', function (err, fullpath) {
-      if (err || !fullpath) {
-        findmsbuild(config.netVersion, 'Framework', function (err, fullpath) {
-          if (err) {
-            var time = new Date();
-            context.status('command.start', { command: screen, started: time, time: time, plugin: context.plugin });
-            context.status('stderr', '\u001b[31;1m' + err + '\u001b[0m');
-            context.status('command.done', { exitCode: 404, time: time, elapsed: 0 });
-            return done(404, err);
-          } else {
-            msbuild(context, fullpath, args, screen, done);
-          }
-        });
-      } else {
-        msbuild(context, fullpath, args, screen, done);
-      }
-    });
+  if (config.netVersion && config.netVersion != 'Whatever' && config.msbuildPath) {
+    msbuild(context, config.msbuildPath, args, screen, done);
   } else {
     msbuild(context, 'msbuild', args, screen, done);
   }
+}
+
+function configureMsBuildPath(context, config, done) {
+  var start = new Date();
+  context.status('command.start', { command: 'Finding msbuild', started: start, time: start, plugin: context.plugin });
+  findmsbuild(config.netVersion, 'Framework64', function (err, fullpath) {
+    if (err || !fullpath) {
+      findmsbuild(config.netVersion, 'Framework', function (err, fullpath) {
+        var end = new Date();
+        if (err) {
+          context.status('stderr', '\u001b[31;1m' + err + '\u001b[0m');
+          context.status('command.done', { exitCode: 404, time: end, elapsed: end.getTime() - start.getTime() });
+          return done(404, err);
+        } else {
+          config.msbuildPath = fullpath;
+          context.status('stdout', '\u001b[32;1m' + fullpath + '\u001b[0m');
+          context.status('command.done', { exitCode: 0, time: end, elapsed: end.getTime() - start.getTime() });
+          done();
+        }
+      });
+    } else {
+      var end = new Date();
+      config.msbuildPath = fullpath;
+      context.status('stdout', '\u001b[32;1m' + fullpath + '\u001b[0m');
+      context.status('command.done', { exitCode: 0, time: end, elapsed: end.getTime() - start.getTime() });
+      done();
+    }
+  });
 }
 
 function findmsbuild(version, framework, callback) {
@@ -142,37 +154,38 @@ function ensureNuGet(context, config, done) {
 }
 
 function restorePackages(context, config, done) {
-  ensureNuGet(context, config, function(err) {
-    if (err) {
-      done(err);
-    } else {
-      var nugetPath = path.join(context.baseDir, 'nuget', 'nuget.exe');
-      var args = [ 'restore' ];
-      var screen = 'nuget restore';
-      
-      if (config.restoreMethod == 'Project') {
-        args.push(config.projectFile);
-        screen += ' ' + config.projectFile;
-      } else if (config.restoreMethod == 'Custom') {
-        args.push(config.customRestoreFile);
-        screen += ' ' + config.customRestoreFile;
-      }
-      args.push('-NonInteractive');
-      context.cmd({
-        cmd: {
-          command: nugetPath,
-          args: args,
-          screen: screen
-        }
-      }, done);
+  var nugetPath = path.join(context.baseDir, 'nuget', 'nuget.exe');
+  var args = [ 'restore' ];
+  var screen = 'nuget restore';
+  
+  if (config.restoreMethod == 'Project') {
+    args.push(config.projectFile);
+    screen += ' ' + config.projectFile;
+  } else if (config.restoreMethod == 'Custom') {
+    args.push(config.customRestoreFile);
+    screen += ' ' + config.customRestoreFile;
+  }
+  args.push('-NonInteractive');
+  context.cmd({
+    cmd: {
+      command: nugetPath,
+      args: args,
+      screen: screen
     }
-  });
+  }, done);
 }
   
 module.exports = {
   init: function (config, job, context, cb) {
-    config = config || {}
+    config = config || {};
     var ret = {
+      environment: function (context, done) {
+        if (config.restorePackages) {
+          configureMsBuildPath(context, config, ensureNuGet.bind(this, context, config, done));
+        } else { 
+          configureMsBuildPath(context, config, done);
+        }
+      },
       prepare: function (context, done) {   
         if (config.restorePackages) {
           restorePackages(context, config, function(err, res) {
