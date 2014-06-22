@@ -125,7 +125,7 @@ function ensureNuGet(context, config, done) {
       proc.stdout.setEncoding('utf8')
       proc.stderr.setEncoding('utf8')
       proc.stdout.on('data', function(data) { context.status('stdout', data); });
-      proc.stderr.on('data', function(data) { context.status('stderr', data); });
+      proc.stderr.on('data', function(data) { context.status('stderr', '\u001b[31;1m' + data + '\u001b[0m'); });
       proc.on('close', function(exit) {
         var end = new Date();
         context.status('command.done', { exitCode: exit, time: end, elapsed: end.getTime() - start.getTime() });
@@ -200,6 +200,12 @@ module.exports = {
         }
       }
     };
+    
+    if (config.restorePackages) {
+      ret.cleanup = function (context, done) {      
+        fs.remove(path.join(context.dataDir, 'packages'), done);
+      };
+    }
     
     cb(null, ret);
   }
