@@ -109,7 +109,7 @@ function ensureNuGet(context, config, done) {
   context.status('command.start', { command: 'Downloading latest Nuget.exe', started: start, time: start, plugin: context.plugin });
   fs.exists(nugetPath, function(exists) {
     if (exists) {
-      var proc = childProc.spawn('nuget', [ 'update', '-Self' ], { cwd: path.join(context.baseDir, 'nuget') });
+      var proc = childProc.spawn(nugetPath, [ 'update', '-Self' ]);
       proc.stdout.setEncoding('utf8')
       proc.stderr.setEncoding('utf8')
       proc.stdout.on('data', function(data) { context.status('stdout', data); });
