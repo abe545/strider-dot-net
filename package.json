@@ -1,7 +1,9 @@
 {
   "name": "strider-dot-net",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Run .NET builds in Strider",
+  "homepage": "https://github.com/abe545/strider-dot-net",
+  "bugs": "https://github.com/abe545/strider-dot-net/issues",
   "main": "worker.js",
   "dependencies": {
     "async": "~0.2.10",
@@ -28,5 +30,9 @@
     "config": {
       "controller": "DotNetController"
     }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/abe545/strider-dot-net.git"
   }
 }
