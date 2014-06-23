@@ -1,6 +1,6 @@
 {
   "name": "strider-dot-net",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Run .NET builds in Strider",
   "homepage": "https://github.com/abe545/strider-dot-net",
   "bugs": "https://github.com/abe545/strider-dot-net/issues",
