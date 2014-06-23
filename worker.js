@@ -40,14 +40,15 @@ function build(context, config, done) {
     });
   }
   
-  if (config.netVersion && config.netVersion != 'Whatever' && config.msbuildPath) {
-    msbuild(context, config.msbuildPath, args, screen, done);
-  } else {
-    msbuild(context, 'msbuild', args, screen, done);
-  }
+  msbuild(context, config.msbuildPath, args, screen, done);
 }
 
 function configureMsBuildPath(context, config, done) {
+  if (!config.netVersion || config.netVersion == 'Whatever') {
+    config.msbuildPath = 'msbuild';
+    return done();
+  }
+  
   var start = new Date();
   context.status('command.start', { command: 'Finding msbuild', started: start, time: start, plugin: context.plugin });
   findmsbuild(config.netVersion, 'Framework64', function (err, fullpath) {
@@ -116,9 +117,9 @@ function msbuild(context, path, args, screen, done) {
 }
 
 function ensureNuGet(context, config, done) {
-  var nugetPath = path.join(context.baseDir, 'nuget', 'nuget.exe');
   var start = new Date();
   context.status('command.start', { command: 'Downloading latest Nuget.exe', started: start, time: start, plugin: context.plugin });
+  var nugetPath = path.join(context.baseDir, 'nuget', 'nuget.exe');
   fs.exists(nugetPath, function(exists) {
     if (exists) {
       var proc = childProc.spawn(nugetPath, [ 'update', '-Self' ]);
@@ -157,6 +158,14 @@ function restorePackages(context, config, done) {
   var nugetPath = path.join(context.baseDir, 'nuget', 'nuget.exe');
   var args = [ 'restore' ];
   var screen = 'nuget restore';
+  
+  if (config.packageSources && config.packageSources.length > 0) {
+    // strider will escape this for us
+    var allSources = config.packageSources.join(';');
+    args.push('-source');
+    args.push(allSources);
+    screen += ' -source "' + allSources + '"';
+  }
   
   if (config.restoreMethod == 'Project') {
     args.push(config.projectFile);

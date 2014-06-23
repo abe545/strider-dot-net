@@ -5,6 +5,7 @@ module.exports = {
     restorePackages:     { type: Boolean, default: true },
     restoreMethod:       { type: String, default: 'Whatever', enum: ['Whatever', 'Project', 'Custom'] },
     customRestoreFile:   { type: String, default: '' },
+    packageSources:     [{ type: String }],
     projectFile:         { type: String, default: '' },
     netVersion:          { type: String, default: 'Whatever', enum: ['1.0', '1.1', '2.0', '3.0', '3.5', '4.0', 'Whatever'] },
     platform:            { type: String, default: 'Default', enum: ['Default', 'Any CPU', 'x86', 'x64', 'ARM', 'Custom'] },

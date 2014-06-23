@@ -30,6 +30,25 @@
         </p>
       </div>
     </div>
+	<div class="form-group" ng-hide="!config.restorePackages">
+      <label for="package-sources" class="control-label">Package Sources</label>
+      <div class="controls">
+        <div id="package-sources" class="form-inline">
+          <input placeholder="https://www.nuget.org/api/v2/" ng-model="new_package_source">
+          <button class="btn btn-primary" ng-disabled="!new_package_source" ng-click="addPackageSource()">Add</button>
+        </div>
+        <p class="help-block">
+          Specify sources to use to restore nuget packages. If none specified, nuget.org will be used.
+        </p>
+      </div>
+      <ul class="targets unstyled">
+        <li ng-repeat="item in config.packageSources">
+          <i class="icon-remove" ng-click="removePackageSource($index)"></i>
+          [[ item ]]
+        </li>
+        <li ng-hide="config.packageSources.length"><em>No custom package sources specified.</em></li>
+      </ul>
+    </div>
     <div class="form-group">
       <label for="netVersion" class="control-label">.NET Version</label> 
       <div class="controls">

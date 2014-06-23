@@ -30,5 +30,15 @@ app.controller('DotNetController', ['$scope', function ($scope) {
     $scope.new_property_name = '';
     $scope.new_property_value = '';
     $scope.save();
-  }
+  };
+  $scope.removePackageSource = function(index) {
+    $scope.config.packageSources.splice(index, 1);
+    $scope.save();
+  };
+  $scope.addPackageSource = function() {
+    if (!$scope.config.packageSources) $scope.config.packageSources = [];
+    $scope.config.packageSources.push($scope.new_package_source);
+    $scope.new_package_source = '';
+    $scope.save();
+  };
 }]);
