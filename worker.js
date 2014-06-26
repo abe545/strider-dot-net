@@ -7,7 +7,19 @@ var path = require('path')
 
 function build(context, config, done) {
   var screen = 'msbuild';
-  var args = ['/m', '/nologo'];
+  var args = [];
+  
+  try {
+    var logger = require('strider-msbuild-logger')();
+  } catch (err) {
+    logger = null;
+  }
+
+  if (logger) {
+    // shut off the standard console logger, otherwise the output will be logged twice
+    args.push('/noconsolelogger', '/logger:' + logger);
+  } 
+  
   if (config.projectFile) {
     args.push(config.projectFile);
     screen += ' ' + config.projectFile;
