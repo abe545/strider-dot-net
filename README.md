@@ -21,5 +21,5 @@ Since there is no way to force msbuild to colorize its output, I've written an [
 
 You can follow its progress at [gettinggui.com](http://gettinggui.com)
 
-[npm-badge-img]: https://nodei.co/npm/strider-dot-net.svg
+[npm-badge-img]: https://nodei.co/npm/strider-dot-net.png
 [npm-badge-link]: https://nodei.co/npm/strider-dot-net/
