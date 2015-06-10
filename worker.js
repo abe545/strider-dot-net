@@ -12,7 +12,7 @@ module.exports = {
           if (err) {
             done(err, true);
           } else if (config.restorePackages) {
-            nuGet.ensureNuGet(context, config, done)
+            nuGet.ensureNuGet(context, done)
           } else {
             done(null, true);
           }
