@@ -2,6 +2,7 @@ strider-dot-net
 ===============
 
 [![NPM][npm-badge-img]][npm-badge-link]
+[![Dependency Status][david-badge-img]][david-badge-link]
 
 ##.NET build actions for strider.
 
@@ -23,3 +24,5 @@ You can follow its progress at [gettinggui.com](http://gettinggui.com)
 
 [npm-badge-img]: https://nodei.co/npm/strider-dot-net.png
 [npm-badge-link]: https://nodei.co/npm/strider-dot-net/
+[david-badge-img]: https://david-dm.org/abe545/strider-dot-net.svg
+[david-badge-link]: https://david-dm.org/abe545/strider-dot-net/
