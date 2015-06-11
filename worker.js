@@ -1,12 +1,10 @@
-var path = require('path')
-  , fs = require('fs-extra')
-  , nuGet = require('./lib/nuget')
+var nuGet = require('./lib/nuget')
   , msbuild = require('./lib/msbuild');
   
 module.exports = {
   init: function (config, job, context, cb) {
     config = config || {};
-    var ret = {
+    cb(null, {
       environment: function (context, done) {
         msbuild.ensurePathToExecutable(context, config, function(err) {
           if (err) {
@@ -31,14 +29,6 @@ module.exports = {
           msbuild.build(context, config, done);
         }
       }
-    };
-    
-    if (config.restorePackages) {
-      ret.cleanup = function (context, done) {      
-        fs.remove(path.join(context.dataDir, 'packages'), function(err) { done(err, true); });
-      };
-    }
-    
-    cb(null, ret);
+    });
   }
 }
