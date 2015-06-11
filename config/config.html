@@ -2,15 +2,16 @@
   <button ng-click="save()" class="btn btn-primary">Save</button>
 </div>
 
-<form class="form-horizontal"> 
+<div class="well"> 
   <fieldset>
+    <legend><h3>.NET</h3></legend>
     <div class="form-group">
       <label for="proj" class="control-label">Project or Solution</label>
       <div class="controls">
         <input id="proj" class="input-xxlarge" placeholder="project.sln" ng-model="config.projectFile">
         <p class="help-block">
-        If no project or solution is specified, msbuild will attempt to build a file that ends in <em>proj</em>.
-        If there is not exactly one file that ends in <em>proj</em>, the build will fail.
+        If no project or solution is specified, <code>msbuild</code> will attempt to build a file with an extension that ends in <em>proj</em>.
+        If there is not <strong>exactly one</strong> file with an extension that ends in <em>proj</em>, the build will fail.
         </p>
       </div>
     </div>
@@ -19,9 +20,10 @@
       <div class="controls">
         <label id="nuget" class="checkbox">
           <input type="checkbox" ng-model="config.restorePackages" ng-change="save()">
-          Restore NuGet Packages before running msbuild
+          Restore NuGet Packages before running <code>msbuild</code>
         </label>
-        <select ng-change="save()" ng-model="config.restoreMethod" ng-hide="!config.restorePackages" ng-options="value for value in ['Whatever', 'Project', 'Custom']"></select>
+        <select id="nuget" ng-change="save()" ng-model="config.restoreMethod" ng-hide="!config.restorePackages" ng-options="value for value in ['Whatever', 'Project', 'Custom']"></select>
+        <br />
         <input class="input-xlarge" ng-model="config.customRestoreFile" ng-hide="!config.restorePackages || config.restoreMethod != 'Custom'">
         <p class="help-block" ng-hide="!config.restorePackages">
           If <em>Whatever</em> is selected, strider will not pass anything to nuget.exe</br>
@@ -30,7 +32,7 @@
         </p>
       </div>
     </div>
-	<div class="form-group" ng-hide="!config.restorePackages">
+	  <div class="form-group" ng-hide="!config.restorePackages">
       <label for="package-sources" class="control-label">Package Sources</label>
       <div class="controls">
         <div id="package-sources" class="form-inline">
@@ -43,20 +45,26 @@
       </div>
       <ul class="targets unstyled">
         <li ng-repeat="item in config.packageSources">
-          <i class="icon-remove" ng-click="removePackageSource($index)"></i>
+          <span class="remove">
+            <span class="clickable" ng-click="removePackageSource($index)">
+              <i class="fa fa-times"></i>
+            </span>
+          </span>
           [[ item ]]
         </li>
         <li ng-hide="config.packageSources.length"><em>No custom package sources specified.</em></li>
       </ul>
     </div>
+    <h4>msbuild Options</h4>
     <div class="form-group">
-      <label for="netVersion" class="control-label">.NET Version</label> 
+      <label for="netVersion" class="control-label">Version</label> 
       <div class="controls">
-        <select id="netVersion" ng-change="save()" ng-model="config.netVersion" ng-options="value for value in ['1.0', '1.1', '2.0', '3.0', '3.5', '4.0', 'Whatever']"></select>
+        <select id="msbuildVersion" ng-change="save()" ng-model="config.msbuildVersion" ng-options="value for value in ['Whatever', '2.0', '3.5', '4.0', 'Visual Studio 2013', 'Custom']"></select>
+        <br />
+        <input class="input-xlarge" ng-model="config.customMsbuildPath" ng-show="config.msbuildVersion == 'Custom'">
         <p class="help-block">
-          Select <em>Whatever</em> if the .NET framework version you wish to build with is in the path. 
-          Specifically, strider needs to call msbuild; if no msbuild.exe is accessible in the path,
-          using <em>Whatever</em> will always fail.
+          Select <em>Whatever</em> if the version of <code>msbuild</code> you wish to build with is in the path.<br/>
+          Select <em>Custom</em> if you have installed <code>msbuild</code> to a non-standard location (especially for versions of Visual Studio starting with 2013, since they now package <code>msbuild</code>, instead of it being in the framework), or if you just want to specify where <code>msbuild</code> is located. This should be the full path to the file, including <code>msbuild.exe</code>. 
         </p>
       </div>
     </div>
@@ -97,7 +105,11 @@
       </div>
       <ul class="targets unstyled">
         <li ng-repeat="item in config.targets">
-          <i class="icon-remove" ng-click="removeTarget($index)"></i>
+          <span class="remove">
+            <span class="clickable" ng-click="removeTarget($index)">
+              <i class="fa fa-times"></i>
+            </span>
+          </span>
           [[ item ]]
         </li>
         <li ng-hide="config.targets.length"><em>No targets specified. Generally Build is the default target.</em></li>
@@ -112,18 +124,22 @@
           <button class="btn btn-primary" ng-disabled="!new_property_name || !new_property_value" ng-click="addCustomProperty()">Add</button>
         </div>
         <p class="help-block">
-          You can specify additional properties to pass to msbuild here.
-          They are passed to msbuild like: /p:PROPERTYNAME=PROPERTYVALUE.
+          You can specify additional properties to pass to <code>msbuild</code> here.
+          They are passed to <code>msbuild</code> like: /p:PROPERTYNAME=PROPERTYVALUE.
           Strider will use quotes on the property name and value if appropriate.
         </p>
       </div>
       <ul class="targets unstyled">
         <li ng-repeat="item in config.customProperties">
-          <i class="icon-remove" ng-click="removeCustomProperty($index)"></i>
+          <span class="remove">
+            <span class="clickable" ng-click="removeCustomProperty($index)">
+              <i class="fa fa-times"></i>
+            </span>
+          </span>
           [[ item.name ]]=[[ item.value ]]
         </li>
         <li ng-hide="config.customProperties.length"><em>No custom properties added.</em></li>
       </ul>
     </div>
   </fieldset>
-</form>
+</div>
