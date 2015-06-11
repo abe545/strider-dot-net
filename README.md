@@ -2,6 +2,7 @@ strider-dot-net
 ===============
 
 [![NPM][npm-badge-img]][npm-badge-link]
+
 [![Dependency Status][david-badge-img]][david-badge-link]
 
 ##.NET build actions for strider.
