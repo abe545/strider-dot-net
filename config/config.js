@@ -4,6 +4,7 @@ app.controller('DotNetController', ['$scope', function ($scope) {
     $scope.config = value;
   });
   $scope.saving = false;
+  $scope.new_assembly_version_file_is_recursive = true;
   $scope.save = function () {
     $scope.saving = true;
     $scope.pluginConfig('dotnet', $scope.config, function () {
@@ -39,6 +40,17 @@ app.controller('DotNetController', ['$scope', function ($scope) {
     if (!$scope.config.packageSources) $scope.config.packageSources = [];
     $scope.config.packageSources.push($scope.new_package_source);
     $scope.new_package_source = '';
+    $scope.save();
+  };
+  $scope.removeAssemblyVersionFile = function(index) {
+    $scope.config.assemblyVersionFiles.splice(index, 1);
+    $scope.save(); 
+  };
+  $scope.addAssemblyVersionFile = function() {
+    if (!$scope.config.assemblyVersionFiles) $scope.config.assemblyVersionFiles = [];
+    $scope.config.assemblyVersionFiles.push({ name: $scope.new_assembly_version_file, recursive: $scope.new_assembly_version_file_is_recursive });
+    $scope.new_assembly_version_file = '';
+    $scope.new_assembly_version_file_is_recursive = true;
     $scope.save();
   };
 }]);
