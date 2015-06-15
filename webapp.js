@@ -21,6 +21,6 @@ module.exports = {
     assemblyVersion:              { type: String, default: '' },
     assemblyFileVersion:          { type: String, default: '' },
     assemblyInformationalVersion: { type: String, default: '' },
-    assemblyVersionFiles:        [{ name: String, recursive: Boolean }] 
+    assemblyVersionFiles:        [{ type: String }] 
   }
 }

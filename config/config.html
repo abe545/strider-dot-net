@@ -90,8 +90,7 @@
       <label for="version-files" class="control-label">Version Files</label>
       <div class="controls">
         <div id="version-files" class="form-inline">
-          <input placeholder="AssemblyInfo.cs" ng-model="new_assembly_version_file">
-          <label><input type="checkbox" ng-model="new_assembly_version_file_is_recursive"> recursive</label>
+          <input placeholder="**/AssemblyInfo.cs" ng-model="new_assembly_version_file">
           <button class="btn btn-primary" ng-disabled="!new_assembly_version_file" ng-click="addAssemblyVersionFile()">Add</button>
         </div>
         <p class="help-block">
@@ -105,9 +104,9 @@
               <i class="fa fa-times"></i>
             </span>
           </span>
-          [[ item.name ]] <em ng-show="item.recursive">(recursive)</em>
+          [[ item ]]
         </li>
-        <li ng-hide="config.assemblyVersionFiles.length"><em>No Version Files specified. Will recursively search for <code>AssemblyInfo.cs</code>.</em></li>
+        <li ng-hide="config.assemblyVersionFiles.length"><em>No Version Files specified. Using default pattern: <code>**/AssemblyInfo.cs</code>.</em></li>
       </ul>
     </div>
     <h4>msbuild Options</h4>
