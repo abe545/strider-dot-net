@@ -5,7 +5,7 @@ strider-dot-net
 
 [![Dependency Status][david-badge-img]][david-badge-link]
 
-##.NET build actions for strider.
+## .NET build actions for strider.
 
 Calls `msbuild` on a project or solution file. If none is specified in configuration, `msbuild` will attempt to build a file ending in "proj". If none (or more than one) exists in the root directory, the build will fail.
 
