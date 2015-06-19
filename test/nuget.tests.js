@@ -1,18 +1,20 @@
-var gently = global.GENTLY = new (require('gently'))
-  , expect = require('chai').expect
+var expect = require('chai').expect
   , path = require('path')
-  , blanket = require('blanket')
+  , expectRequire = require('a').expectRequire
+  , fs = expectRequire('fs-extra').return(new Fs())
+  , childProc = expectRequire('child_process').return(new ChildProc())
+  , request = expectRequire('request').return(new Request())   
   , nuget = require('../lib/nuget');
 
 describe('nuget', function() {
   describe('#ensureNuGet', function() {
-    it('should update nuget.exe when it is already downloaded', function() {
+    it('should update nuget.exe when it is already downloaded', function(done) {
       var ctx = new Context();
-      gently.expect(gently.hijacked['fs-extra'], 'exists', function(nugetPath, cb) {
+      Fs.prototype.exists = function(nugetPath, cb) {
         expect(nugetPath).to.be.equal(path.join(ctx.baseDir, 'nuget', 'nuget.exe'));
         cb(true);
-      });
-      gently.expect(gently.hijacked.child_process, 'spawn', function(nugetPath, args) {
+      };
+      ChildProc.prototype.spawn = function(nugetPath, args) {
         expect(nugetPath).to.be.equal(path.join(ctx.baseDir, 'nuget', 'nuget.exe'));
         expect(args).to.deep.equal([ 'update', '-Self' ]);
         return {
@@ -23,75 +25,77 @@ describe('nuget', function() {
               cb();
             }
           }  
-        }; 
-      });
+        };
+      };
       nuget.ensureNuGet(ctx, function(err, didRun) {
         expect(err).to.not.be.ok;
         expect(didRun).to.be.true;
-        gently.verify();
+        done();
       });
     });
-    it('should download nuget.exe when it does not already exist', function() {
+    it('should download nuget.exe when it does not already exist', function(done) {
       var ctx = new Context();
-      gently.expect(gently.hijacked['fs-extra'], 'exists', function(nugetPath, cb) {
+      Fs.prototype.exists = function(nugetPath, cb) {
         expect(nugetPath).to.be.equal(path.join(ctx.baseDir, 'nuget', 'nuget.exe'));
         cb(false);
-      });
-      gently.expect(gently.hijacked['fs-extra'], 'ensureFile', function(nugetPath, cb) {
+      };
+      Fs.prototype.ensureFile = function(nugetPath, cb) {
         expect(nugetPath).to.be.equal(path.join(ctx.baseDir, 'nuget', 'nuget.exe'));
         cb();
-      });
-      gently.expect(gently.hijacked['fs-extra'], 'createWriteStream', function(nugetPath) {
+      };
+      Fs.prototype.createWriteStream = function(nugetPath) {
         expect(nugetPath).to.be.equal(path.join(ctx.baseDir, 'nuget', 'nuget.exe'));
         return new NuGetDownloadBuffer();
-      });
-      gently.expect(gently.hijacked.request, 'get', function(uri) {
+      };
+      Request.prototype.get = function(uri) {
         expect(uri).to.be.equal('http://www.nuget.org/nuget.exe');
         return {
           pipe: function(file) {
             file.doClose();
           }
         };
-      });
+      };
+      var nuget = require('../lib/nuget');
       nuget.ensureNuGet(ctx, function(err, didRun) {
         expect(err).to.not.be.ok;
         expect(didRun).to.be.true;
-        gently.verify();
+        done();
       });
     });
-    it('should report an error if downloading nuget.exe fails (when it does not already exist)', function() {
+    it('should report an error if downloading nuget.exe fails (when it does not already exist)', function(done) {
       var ctx = new Context();
-      gently.expect(gently.hijacked['fs-extra'], 'exists', function(nugetPath, cb) {
+      Fs.prototype.exists =  function(nugetPath, cb) {
         expect(nugetPath).to.be.equal(path.join(ctx.baseDir, 'nuget', 'nuget.exe'));
         cb(false);
-      });
-      gently.expect(gently.hijacked['fs-extra'], 'ensureFile', function(nugetPath, cb) {
+      };
+      Fs.prototype.ensureFile = function(nugetPath, cb) {
         expect(nugetPath).to.be.equal(path.join(ctx.baseDir, 'nuget', 'nuget.exe'));
         cb();
-      });
-      gently.expect(gently.hijacked['fs-extra'], 'createWriteStream', function(nugetPath) {
+      };
+      Fs.prototype.createWriteStream = function(nugetPath) {
         expect(nugetPath).to.be.equal(path.join(ctx.baseDir, 'nuget', 'nuget.exe'));
         var buffer = new NuGetDownloadBuffer();
         buffer.testError = 'test error';
         return buffer;
-      });
-      gently.expect(gently.hijacked.request, 'get', function(uri) {
+      };
+      Request.prototype.get = function(uri) {
         expect(uri).to.be.equal('http://www.nuget.org/nuget.exe');
         return {
           pipe: function(file) {
             file.doClose();
           }
         };
-      });
+      };
+      var nuget = require('../lib/nuget');
       nuget.ensureNuGet(ctx, function(err, didRun) {
         expect(err).to.be.equal(1);
         expect(didRun).to.be.true;
-        gently.verify();
+        done();
       });
     });
   });
   describe('#restore', function() {
-    it('should hide full path to nuget.exe', function() {
+    it('should hide full path to nuget.exe', function(done) {
       var ctx = new Context();
       nuget.restorePackages(ctx, {}, function(err, didRun) {
         expect(err).to.not.be.ok;
@@ -99,65 +103,73 @@ describe('nuget', function() {
         expect(ctx.runCmd.screen).to.be.equal('nuget restore');
         expect(ctx.runCmd.command).to.be.equal(path.join(ctx.baseDir, 'nuget', 'nuget.exe'));
         expect(ctx.runCmd.args).to.deep.equal(['restore', '-NonInteractive']);
+        done();
       });
     });
-    it('should return error when restore method is Project and no project specified', function() {
+    it('should return error when restore method is Project and no project specified', function(done) {
       nuget.restorePackages(new Context(), { restoreMethod: 'Project', projectFile: '' }, function(err, didRun) {
         expect(err).to.be.ok;
         expect(err).to.equal(1);
         expect(didRun).to.be.false;
+        done();
       });
     });
-    it('should add Project to command when restore method is Project', function() {
+    it('should add Project to command when restore method is Project', function(done) {
       var ctx = new Context();
       nuget.restorePackages(ctx, { restoreMethod: 'Project', projectFile: 'Test.proj' }, function(err, didRun) {
         expect(err).to.not.be.ok;
         expect(didRun).to.be.true;        
         expect(ctx.runCmd.screen).to.equal('nuget restore Test.proj');
         expect(ctx.runCmd.args).to.deep.equal(['restore', 'Test.proj', '-NonInteractive']);
+        done();
       });
     });
-    it('should return error when restore method is Custom and no file specified', function() {
+    it('should return error when restore method is Custom and no file specified', function(done) {
       nuget.restorePackages(new Context(), { restoreMethod: 'Custom', customRestoreFile: '' }, function(err, didRun) {
         expect(err).to.be.ok;
         expect(err).to.equal(1);
         expect(didRun).to.be.false;
+        done();
       });
     });
-    it('should add Custom File to command when restore method is Custom', function() {
+    it('should add Custom File to command when restore method is Custom', function(done) {
       var ctx = new Context();
       nuget.restorePackages(ctx, { restoreMethod: 'Custom', customRestoreFile: 'Custom' }, function(err, didRun) {
         expect(err).to.not.be.ok; 
         expect(didRun).to.be.true;       
         expect(ctx.runCmd.screen).to.equal('nuget restore Custom');
         expect(ctx.runCmd.args).to.deep.equal(['restore', 'Custom', '-NonInteractive']);
+        done();
       });
     });
-    it('should not add custom package source when value is empty array', function() {
+    it('should not add custom package source when value is empty array', function(done) {
       var ctx = new Context();
       nuget.restorePackages(ctx, { packageSources: [] }, function(err, didRun) {
         expect(err).to.not.be.ok; 
         expect(didRun).to.be.true;       
         expect(ctx.runCmd.screen).to.equal('nuget restore');
         expect(ctx.runCmd.args).to.deep.equal(['restore', '-NonInteractive']);
+        done();
       });
     });
-    it('should add single custom package source', function() {
+    it('should add single custom package source', function(done) {
       var ctx = new Context();
       nuget.restorePackages(ctx, { packageSources: [ 'customSource' ] }, function(err, didRun) {
         expect(err).to.not.be.ok; 
         expect(didRun).to.be.true;       
         expect(ctx.runCmd.screen).to.equal('nuget restore -source "customSource"');
         expect(ctx.runCmd.args).to.deep.equal(['restore', '-source', 'customSource', '-NonInteractive']);
+        done();
       });
     });
-    it('should add multiple custom package sources', function() {
+    it('should add multiple custom package sources', function(done) {
       var ctx = new Context();
       nuget.restorePackages(ctx, { packageSources: [ 'customSource1', 'foo', 'bar' ] }, function(err, didRun) {
         expect(err).to.not.be.ok; 
         expect(didRun).to.be.true;       
         expect(ctx.runCmd.screen).to.equal('nuget restore -source "customSource1;foo;bar"');
         expect(ctx.runCmd.args).to.deep.equal(['restore', '-source', 'customSource1;foo;bar', '-NonInteractive']);
+        done();
       });
     });
   }); 
@@ -207,3 +219,7 @@ function NuGetDownloadBuffer() {
     }
   };
 }
+
+function Fs() { }
+function ChildProc() { }
+function Request() { }
