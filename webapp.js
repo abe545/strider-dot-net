@@ -16,6 +16,11 @@ module.exports = {
     targets:            [{ type: String }],
     customProperties:   [{ name:  String,
                            value: String
-                         }]
+                         }],
+    patchAssemblyVersions:        { type: Boolean, default: false },
+    assemblyVersion:              { type: String, default: '' },
+    assemblyFileVersion:          { type: String, default: '' },
+    assemblyInformationalVersion: { type: String, default: '' },
+    assemblyVersionFiles:        [{ type: String }] 
   }
 }

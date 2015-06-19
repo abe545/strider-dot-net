@@ -15,8 +15,8 @@
         </p>
       </div>
     </div>
+    <h4>NuGet Options</h4>
     <div class="form-group">
-      <label for="nuget" class="control-label">NuGet Packages</label>
       <div class="controls">
         <label id="nuget" class="checkbox">
           <input type="checkbox" ng-model="config.restorePackages" ng-change="save()">
@@ -40,7 +40,7 @@
           <button class="btn btn-primary" ng-disabled="!new_package_source" ng-click="addPackageSource()">Add</button>
         </div>
         <p class="help-block">
-          Specify sources to use to restore nuget packages. If none specified, nuget.org will be used.
+          Specify sources to use to restore nuget packages.
         </p>
       </div>
       <ul class="targets unstyled">
@@ -52,12 +52,68 @@
           </span>
           [[ item ]]
         </li>
-        <li ng-hide="config.packageSources.length"><em>No custom package sources specified.</em></li>
+        <li ng-hide="config.packageSources.length"><em>No custom package sources specified.</em> <code>nuget.org</code> <em>will be used.</em></li>
+      </ul>
+    </div>
+    <h4>AssemblyVersion Patching</h4>
+    <div class="form-group">
+      <div class="controls">
+        <label id="assemblyVersion" class="checkbox">
+          <input type="checkbox" ng-model="config.patchAssemblyVersions" ng-change="save()">
+          Set AssemblyVersion attributes
+        </label>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="controls" ng-show="config.patchAssemblyVersions">
+        <label for="assemblyVersionAttribute" class="control-label">AssemblyVersion</label>
+        <input id="assemblyVersionAttribute" class="input-xlarge" ng-model="config.assemblyVersion">
+        <br />
+        <p class="help-block">
+          <code>AssemblyVersion</code> must be of the form <code>1.2.3.4</code>  
+        </p>
+        <label for="assemblyFileVersionAttribute" class="control-label">AssemblyFileVersion</label>
+        <input id="assemblyFileVersionAttribute" class="input-xlarge" ng-model="config.assemblyFileVersion">
+        <br />
+        <p class="help-block">
+          <code>AssemblyFileVersion</code> must be of the form <code>1.2.3.4</code>  
+        </p>
+        <label for="assemblyInformationalVersion" class="control-label">AssemblyInformationalVersion</label>
+        <input id="assemblyInformationalVersion" class="input-xlarge" ng-model="config.assemblyInformationalVersion">
+        <br />
+        <p class="help-block">
+          <code>AssemblyInformationalVersion</code> can contain anything, but it should be your product version. <br />
+          For instance, if you are creating a nuget package, and releasing <code>1.0.3-alpah3</code>, you should set the 
+          <code>AssemblyInformationalVersion</code> to <code>1.0.3-alpah3</code>  
+        </p>
+      </div>
+      <label for="version-files" class="control-label">Version Files</label>
+      <div class="controls">
+        <div id="version-files" class="form-inline">
+          <input placeholder="**/AssemblyInfo.cs" ng-model="new_assembly_version_file">
+          <button class="btn btn-primary" ng-disabled="!new_assembly_version_file" ng-click="addAssemblyVersionFile()">Add</button>
+        </div>
+        <p class="help-block">
+          Specify files that hold the assembly version attributes that will be updated. If the attribute is not in a file, it will <strong>not be added</strong>.<br/>
+        </p>
+      </div>
+      <ul class="targets unstyled">
+        <li ng-repeat="item in config.assemblyVersionFiles">
+          <code>
+            <span class="remove">
+              <span class="clickable" ng-click="removeAssemblyVersionFile($index)">
+                <i class="fa fa-times"></i>
+              </span>
+            </span>
+            [[ item ]]
+          </code>
+        </li>
+        <li ng-hide="config.assemblyVersionFiles.length"><em>No Version Files specified. Using default patterns:</em><br/><code>**/AssemblyInfo.cs</code><br/><code>**/AssemblyInfo.vb</code></li>
       </ul>
     </div>
     <h4>msbuild Options</h4>
     <div class="form-group">
-      <label for="netVersion" class="control-label">Version</label> 
+      <label for="msbuildVersion" class="control-label">Version</label> 
       <div class="controls">
         <select id="msbuildVersion" ng-change="save()" ng-model="config.msbuildVersion" ng-options="value for value in ['Whatever', '2.0', '3.5', '4.0', 'Visual Studio 2013', 'Custom']"></select>
         <br />
@@ -117,7 +173,7 @@
     </div>
     <div class="form-group">
       <label for="params" class="control-label">Additional Parameters</label>
-	  <div class="controls">
+	    <div class="controls">
         <div class="form-inline">
           <input placeholder="Property Name" ng-model="new_property_name">
           <input placeholder="Property Value" ng-model="new_property_value">

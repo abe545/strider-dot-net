@@ -41,4 +41,14 @@ app.controller('DotNetController', ['$scope', function ($scope) {
     $scope.new_package_source = '';
     $scope.save();
   };
+  $scope.removeAssemblyVersionFile = function(index) {
+    $scope.config.assemblyVersionFiles.splice(index, 1);
+    $scope.save(); 
+  };
+  $scope.addAssemblyVersionFile = function() {
+    if (!$scope.config.assemblyVersionFiles) $scope.config.assemblyVersionFiles = [];
+    $scope.config.assemblyVersionFiles.push($scope.new_assembly_version_file);
+    $scope.new_assembly_version_file = '';
+    $scope.save();
+  };
 }]);

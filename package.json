@@ -6,13 +6,23 @@
   "bugs": "https://github.com/abe545/strider-dot-net/issues",
   "main": "worker.js",
   "dependencies": {
-    "async": "^0.9.0",
-    "fs-extra": "^0.12.0",
-    "lodash": "^2.4.1",
+    "async": "^1.2.1",
+    "fs-extra": "^0.19.0",
+    "glob": "^5.0.10",
+    "lodash": "^3.9.3",
     "request": "^2.49.0"
+  },
+  "devDependencies": {
+    "a": "^0.4.8",
+    "chai": "^3.0.0",
+    "istanbul": "^0.3.15",
+    "mocha": "^2.2.5"
   },
   "optionalDependencies": {
     "strider-msbuild-logger": "~0.1.0"
+  },
+  "scripts": {
+    "test": "istanbul cover node_modules/mocha/bin/_mocha -- -R spec"
   },
   "keywords": [
     "strider",
