@@ -99,14 +99,16 @@
       </div>
       <ul class="targets unstyled">
         <li ng-repeat="item in config.assemblyVersionFiles">
-          <span class="remove">
-            <span class="clickable" ng-click="removeAssemblyVersionFile($index)">
-              <i class="fa fa-times"></i>
+          <code>
+            <span class="remove">
+              <span class="clickable" ng-click="removeAssemblyVersionFile($index)">
+                <i class="fa fa-times"></i>
+              </span>
             </span>
-          </span>
-          [[ item ]]
+            [[ item ]]
+          </code>
         </li>
-        <li ng-hide="config.assemblyVersionFiles.length"><em>No Version Files specified. Using default pattern: <code>**/AssemblyInfo.cs</code>.</em></li>
+        <li ng-hide="config.assemblyVersionFiles.length"><em>No Version Files specified. Using default patterns:</em><br/><code>**/AssemblyInfo.cs</code><br/><code>**/AssemblyInfo.vb</code></li>
       </ul>
     </div>
     <h4>msbuild Options</h4>

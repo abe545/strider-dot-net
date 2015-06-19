@@ -1,4 +1,5 @@
 var expect = require('chai').expect
+  , path = require('path')
   , expectRequire = require('a').expectRequire
   , fs = expectRequire('fs-extra').return(new Fs())
   , version = require('../lib/version');
@@ -51,11 +52,11 @@ describe('version', function() {
         cb(null, [ 'test.ing' ]);
       });
       Fs.prototype.readFile = function(file, cb) {
-        expect(file).to.equal('test.ing');
+        expect(file).to.equal(path.join('test/Dir', 'test.ing'));
         cb(null, 'empty file');
       };
       Fs.prototype.writeFile = function(file, content, cb) {
-        expect(file).to.equal('test.ing');
+        expect(file).to.equal(path.join('test/Dir', 'test.ing'));
         expect(content).to.be.equal('empty file');
         cb();
       };
@@ -71,6 +72,17 @@ describe('version', function() {
       });
       version.patchFiles(new Context(), { }, function(err, didRun) {
         expect(err).to.be.equal('test error');
+        expect(didRun).to.not.be.ok;
+        done();
+      });
+    });
+    it('will pass dataDir in glob config.cwd', function(done) {
+      expectRequire('glob').return(function(file, opt, cb) {
+        expect(opt.cwd).to.be.equal('test/Dir');
+        cb(null, [ ]);
+      });
+      version.patchFiles(new Context(), { }, function(err, didRun) {
+        expect(err).to.not.be.ok;
         expect(didRun).to.not.be.ok;
         done();
       });
@@ -101,7 +113,7 @@ describe('version', function() {
         cb(null, [ 'test.ing' ]);
       });
       Fs.prototype.readFile = function(file, cb) {
-        expect(file).to.equal('test.ing');
+        expect(file).to.equal(path.join('test/Dir', 'test.ing'));
         cb('test error');
       };
       version.patchFiles(new Context(), { assemblyVersionFiles: [ 'test path' ] }, function(err, didRun) {
@@ -116,11 +128,11 @@ describe('version', function() {
         cb(null, [ 'test.ing' ]);
       });
       Fs.prototype.readFile = function(file, cb) {
-        expect(file).to.equal('test.ing');
+        expect(file).to.equal(path.join('test/Dir', 'test.ing'));
         cb(null, 'test file');
       };
       Fs.prototype.writeFile = function(file, content, cb) {
-        expect(file).to.equal('test.ing');
+        expect(file).to.equal(path.join('test/Dir', 'test.ing'));
         expect(content).to.be.equal('test file');
         cb('test error');
       };
@@ -237,7 +249,7 @@ describe('version', function() {
 
 function Context() {
   var self = this;
-  this.dataDir = 'testDir';
+  this.dataDir = 'test/Dir';
   this.status = function() { };
   this.out = function() { };
   this.cmd = function(options, cb) {
