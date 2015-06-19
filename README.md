@@ -18,6 +18,10 @@ You can pass as many custom parameters to `msbuild` as you need to.
 ### NuGet packages
 It will get the latest version of nuget.exe from [nuget.org](http://nuget.org) in order to restore nuget packages. This means that your solution doesn't need NuGet Package Restore, but if it does, disable this feature of the plugin for your project. You can also specify custom package sources to pull from, in case you use a private nuget feed (or want to consume packages from a network share drive).
 
+### Assembly Versioning
+This feature allows strider to modify your assembly or application's version numbers before compiling. Although you can configure the action for all three attributes (`AssemblyVersion`, `AssemblyFileVersion`, `AssemblyInformationalVersion`), unless the attribute is physically present in the file being patched, the value will not be set.
+You can specify a bash-like pattern to find the files that contain your `AssemblyVersion` attributes. If you're struggling with syntax, the module used is [glob](http://npmjs.org/glob).
+
 ### Colorized output
 Since there is no way to force `msbuild` to colorize its output, I've written an [msbuild logger for strider](https://github.com/abe545/strider-msbuild-logger). This is included in this project as an optional dependency. That way, if your strider instance can't build this file for some strange reason, `strider-dot-net will` fallback to black and white output.
 
